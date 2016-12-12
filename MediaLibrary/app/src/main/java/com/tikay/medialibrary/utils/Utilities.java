@@ -169,6 +169,17 @@ public class Utilities
 		return "";
 	}
 	
+	public static int getAudioFileCount(Context context,String dirPath) {
+		String selection = MediaStore.Audio.Media.DATA + " like ?";
+		String[] projection = {MediaStore.Audio.Media.IS_MUSIC};    
+		String[] selectionArgs={dirPath + "%"};
+		Cursor cursor = context.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, projection, selection, selectionArgs, null);
+		int count = cursor.getCount();
+		//Log.i(TAG, "Count = "+count);
+		cursor.close();
+		return count;
+  }
+	
 	
 	public static Bitmap getEmbeddedSongArt(Context context, String path) {
 		try {

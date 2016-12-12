@@ -96,7 +96,7 @@ public class Folders extends Fragment implements OnItemTouchListener, OnClickLis
 			}
 		} catch(Exception e) {
 			Log.e(TAG, e.toString());
-			Utilities.toastLong(getContext(), new StringBuffer().append("Folders <<<>>>  ").append(e.toString()).toString());
+			Utilities.toastLong(getContext(), "Folders <<<>>>  "+e.toString());
 		}
 	}
 
@@ -139,14 +139,14 @@ public class Folders extends Fragment implements OnItemTouchListener, OnClickLis
 						
 					}
 				} catch(Exception e) {
-					Utilities.toastLong(getContext(), new StringBuffer().append("Error Accessing Tracks on ExtSdCard:  ").append(e.toString()).toString());
-					Log.e(TAG, new StringBuffer().append("Error Accessing Tracks on ExtSdCard:  ").append(e.toString()).toString());
+					Utilities.toastLong(getContext(), "Error Accessing Tracks on ExtSdCard:  ");
+					Log.e(TAG, "Error Accessing Tracks on ExtSdCard:  " +e.toString());
 				}
 				filterMusicFolders();
 				init();
 			} catch(Exception e2) {
-				Utilities.toastLong(getContext(), new StringBuffer().append(new StringBuffer().append(new StringBuffer().append(new StringBuffer().append(new StringBuffer().append("Folders <<<>>> error @ ").append(e2.getCause().toString()).toString()).append("\n").toString()).append(e2.getMessage()).toString()).append("\n").toString()).append(e2.toString()).toString());
-				Log.e(TAG, new StringBuffer().append(new StringBuffer().append(new StringBuffer().append(new StringBuffer().append(TAG).append(" <<>>  error @ ").toString()).append(e2.getMessage()).toString()).append(" ---  ").toString()).append(e2.toString()).toString());
+				Utilities.toastLong(getContext(), "Folders <<<>>> error @ " + e2.toString());
+				Log.e(TAG, TAG + " <<<>>> error @ " + e2.toString());
 			}
 		}
 	}
@@ -157,7 +157,7 @@ public class Folders extends Fragment implements OnItemTouchListener, OnClickLis
 		if(file.exists()) {
 			File[] listFiles = file.listFiles(new AudioFilter());
 			for(File file2 : listFiles) {
-				if(getAudioFileCount(file2.getAbsolutePath()) != 0) {
+				if(Utilities.getAudioFileCount(getContext(),file2.getAbsolutePath()) != 0) {
 					getFilesRecursive(file2);
 				}
 			}
@@ -235,7 +235,7 @@ public class Folders extends Fragment implements OnItemTouchListener, OnClickLis
 			initRecyclerView(listOfFolders);
 			pathTextView.setText(path);
 		} catch(Exception e) {
-			Log.e(TAG, new StringBuffer().append(new StringBuffer().append(TAG).append(" >>>  error:  ").toString()).append(e.toString()).toString());
+			Log.e(TAG, TAG+" >>>  error restoring state:  " +e.toString());
 		}
 	}
 	
@@ -263,7 +263,7 @@ public class Folders extends Fragment implements OnItemTouchListener, OnClickLis
 					listOfFolders.clear();
 					Constants.FOLDER_TRACKS.clear();
 					for(int i=0; i < list.length; i++) {
-						int count = getAudioFileCount(list[i].getAbsolutePath());
+						int count = Utilities.getAudioFileCount(getContext(),list[i].getAbsolutePath());
 						if(count != 0) {
 							name = list[i].getName();
 							String newName = name.substring(0, name.lastIndexOf('.'));
@@ -358,17 +358,6 @@ public class Folders extends Fragment implements OnItemTouchListener, OnClickLis
 				return;
 		}
 	}
-
-	private int getAudioFileCount(String dirPath) {
-		String selection = MediaStore.Audio.Media.DATA + " like ?";
-		String[] projection = {MediaStore.Audio.Media.IS_MUSIC};    
-		String[] selectionArgs={dirPath + "%"};
-		Cursor cursor = getActivity().getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, projection, selection, selectionArgs, null);
-		int count = cursor.getCount();
-		//Log.i(TAG, "Count = "+count);
-		cursor.close();
-		return count;
-  }
 
 
 	@Override
