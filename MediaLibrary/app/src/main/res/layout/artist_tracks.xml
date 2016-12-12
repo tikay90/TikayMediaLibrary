@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_height="match_parent"
+	android:layout_width="match_parent"
+	android:orientation="vertical">
+	
+	<include 
+		layout="@layout/toolbar"
+		
+	/>
+
+	<LinearLayout
+		android:layout_height="wrap_content"
+		android:layout_width="match_parent"
+		android:orientation="horizontal"
+		android:background="#EDEDED">
+
+		<android.support.v7.widget.SearchView
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:queryHint="Search..."
+			android:id="@+id/sv_artist_tt"
+			android:textColor="#FFFFFF"
+			android:layout_weight="1.0"
+			android:background="#00FFFFFF"/>
+
+		<TextView
+			android:layout_height="match_parent"
+			android:textAppearance="?android:attr/textAppearanceSmall"
+			android:layout_width="match_parent"
+			android:id="@+id/tv_artist_tt"
+			android:gravity="center_horizontal"
+			android:textColor="#0097F7"
+			android:paddingTop="10dp"
+			android:paddingBottom="5dp"
+			android:textStyle="bold|italic"
+			android:layout_weight="2.0"
+			android:layout_marginLeft="10dp"/>
+
+	</LinearLayout>
+
+	<ListView
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:id="@+id/lv_artist_tt"
+		android:fastScrollEnabled="true"
+		android:fastScrollAlwaysVisible="false"
+		/>
+
+</LinearLayout>

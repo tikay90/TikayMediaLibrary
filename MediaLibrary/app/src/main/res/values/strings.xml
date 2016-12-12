@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name">Media Library</string>
+	<string name="enabled">Enabled</string>
+	<string name="drawer_opened">Drawer Opened</string>
+	<string name="drawer_closed">Drawer Closed</string>
+	<string name="flat">Flat</string>
+	<string name="bass_boost">Bass boost</string>
+	<string name="about">About...</string>
+	<string name="action_add_favourite">Add To Favourite</string>
+	<string name="action_play_next">Play Next</string>
+	<string name="ok">OK</string>
+	<string name="copyright_message"> Copyright \u00A92015, Tikay</string>
+
+	<string name="back">Back</string>
+	<string name="pause">Pause</string>
+	<string name="play">Play</string>
+	<string name="player">Audio Player</string>
+	<string name="next">Next</string>
+	<string name="open_playlist">Open Playlist</string>
+	<string name="idle">Idle</string>
+	<string name="empty_text">Select song from below to play</string>
+	<string name="player_button">Album Art Screen</string>
+	<string name="home">Home</string>
+	<string name="favourite">Favourite</string>
+	<string name="downloaded">Downloaded</string>
+	<string name="more">More</string>
+	<string name="settings">Settings</string> 
+
+	<color name="orange">#ff3d00</color>
+	<color name="whitish">#ffffff</color>
+	<color name="opaque">#70000000</color>
+
+	<dimen name="button_width">32dp</dimen>
+	<dimen name="small_button_width">28dp</dimen>
+	<dimen name="small_image_art_width">85dp</dimen>
+
+</resources>

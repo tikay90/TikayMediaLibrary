@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<item name="windowWeightSum" type="integer" format="float">100.0</item>
+
+	<item name="min_layout_weight" type="integer" format="float">15.0</item>
+	<item name="mid_layout_weight" type="integer" format="float">70.0</item>
+	<item name="max_layout_weight" type="integer" format="float">85.0</item>
+	
+</resources>

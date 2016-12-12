@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="wrap_content"
+	android:orientation="vertical">
+
+	<LinearLayout
+		android:layout_height="match_parent"
+		android:layout_width="match_parent"
+		android:orientation="horizontal"
+		android:layout_weight="1.0">
+
+		<EditText
+			android:layout_height="match_parent"
+			android:layout_width="match_parent"
+			android:gravity="center_vertical|center_horizontal"
+			android:layout_weight="1.0"
+			android:id="@+id/etDialog"
+			android:hint="Enter Playlist Name"
+			android:textColorHint="#75C3FB"/>
+
+	</LinearLayout>
+
+	<LinearLayout
+		android:layout_height="match_parent"
+		android:layout_width="match_parent"
+		android:orientation="horizontal"
+		android:layout_weight="1.0">
+
+		<Button
+			android:layout_height="match_parent"
+			android:text="Cancel"
+			android:layout_width="match_parent"
+			android:layout_weight="1.0"
+			android:id="@+id/btnDialogCancel"/>
+
+		<Button
+			android:layout_height="match_parent"
+			android:text="Ok"
+			android:layout_width="match_parent"
+			android:layout_weight="1.0"
+			android:id="@+id/btnDiaglogOk"/>
+
+	</LinearLayout>
+
+</LinearLayout>
+

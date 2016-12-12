@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+	xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<EditTextPreference
+		android:title="User Name"
+		android:key="name"
+		android:summary="Enter your name" 
+	/>
+	
+
+	<CheckBoxPreference
+		android:title="Emit Stars"
+		android:key="cb_emitter"
+		android:defaultValue="false"
+		android:summary="Check to emit Stars" 
+	/>
+	
+	
+	<CheckBoxPreference
+		android:title="Show User Name"
+		android:key="cb_username"
+		android:defaultValue="false"
+		android:summary="Check to Show User Name on Start" 
+	/>
+
+	<CheckBoxPreference
+		android:title="Start Up Sound"
+		android:key="splash_sound"
+		android:defaultValue="false"
+		android:summary="ON / OFF" 
+	/>
+
+</PreferenceScreen>
