@@ -166,7 +166,7 @@ public class Utilities
 			cursor.close();
 			return albumArtUri.toString();
 		}
-		return "";
+		return null; // returning null no album art exist
 	}
 	
 	public static int getAudioFileCount(Context context,String dirPath) {
@@ -194,7 +194,7 @@ public class Utilities
 			}
 			metaRetriver.release();
 		} catch(Exception e) {
-			Log.e("UTILITIES", "getEmbeddedSongArt() <<>>  " + e.getMessage());
+			Log.e("UTILITIES", "getEmbeddedSongArt()  <<>>  " + e.getMessage());
 		}
 		Bitmap bm = BitmapFactory.decodeResource(context.getResources(), R.drawable.music_m_logo);
 
