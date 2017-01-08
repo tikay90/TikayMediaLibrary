@@ -17,23 +17,23 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.widget.RelativeLayout;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.tikay.medialibrary.R;
 import com.tikay.medialibrary.db.DatabaseHelper;
 import com.tikay.medialibrary.db.DbConstants;
 import com.tikay.medialibrary.db.PlaylistDb;
 import com.tikay.medialibrary.db.TracksDb;
-import com.tikay.medialibrary.fragments.AlbumRecycler;
 import com.tikay.medialibrary.fragments.Albums;
 import com.tikay.medialibrary.fragments.Artists;
+import com.tikay.medialibrary.fragments.MasterFolder;
 import com.tikay.medialibrary.fragments.Folders;
 import com.tikay.medialibrary.fragments.Genre;
+import com.tikay.medialibrary.fragments.GridAlbum;
+import com.tikay.medialibrary.fragments.GridArtist;
 import com.tikay.medialibrary.fragments.Playlists;
 import com.tikay.medialibrary.fragments.Tracks;
 import com.tikay.medialibrary.models.PlaylistModel;
@@ -42,6 +42,7 @@ import com.tikay.medialibrary.service.MediaService;
 import com.tikay.medialibrary.utils.Constants;
 import com.tikay.medialibrary.utils.MyMediaQuery;
 import com.tikay.medialibrary.utils.Utilities;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,21 +54,18 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
 	private ViewPager viewPager;
 
 	private List<Fragment> listFragments;
-	private DrawerLayout drawerLayout;
-	private RelativeLayout drawerPane;
 	private int selectedTab;
 	private int pos = 0;
 	private static final int REQUEST_PERMISSIONS_RESULT = 101;
 
 	private Intent serviceIntent;
-	private String TAG = "MainActivity";
-
+	private String TAG = MainActivity.class.getSimpleName();
+	
+	
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
-
 		
 		try {
 			// 8th nov, 2016
@@ -91,26 +89,23 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
 			Utilities.toastShort(this, e.getMessage());
 		}
 		
-		
-		
-		
-		
 	}
 
 	private void setup() {
 		try {
 			setContentView(R.layout.activity_main);
-			Utilities.writeLogcatToFile(TAG, TAG);		
+			Utilities.writeLogcatToFile(TAG);		
 			initToolBar();
 			initCollapsingToolbar();
 			setupStuff();
 			serviceIntent = new Intent(MainActivity.this, MediaService.class);
 			startService(serviceIntent);
 			try {
-				new DataBaseTask().execute();
+				//new MainDirLoadTask(MainActivity.this).execute();
+				//new MyDataBaseTask(MainActivity.this).execute();
 			} catch(Exception e) {
 				Utilities.toastLong(getApplicationContext(), e.toString());
-				Log.e(TAG, TAG + " -- Error in onCreate() @ CreateDataBaseTask(): " + e.toString());
+				Log.e(TAG, TAG + " -- Error in onCreate() - @CreateDataBaseTask(): " + e.toString());
 			}
 		} catch(Exception e) {
 			Utilities.toastLong(this, e.getMessage());
@@ -201,9 +196,11 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
 		listFragments.add(new Folders());
 		listFragments.add(new Playlists());
 		listFragments.add(new Genre());
-		listFragments.add(new AlbumRecycler());
+		listFragments.add(new GridAlbum());
+		listFragments.add(new GridArtist());
+		listFragments.add(new MasterFolder());
 
-		viewPager = (ViewPager) findViewById(R.id.viewpager);
+		viewPager = (ViewPager) findViewById(R.id.pager);
 		tabLayout = (TabLayout) findViewById(R.id.tabLayout);
 		//Adding the tabs using addTab() method
 		tabLayout.addTab(tabLayout.newTab().setText("Tracks"));
@@ -213,12 +210,15 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
 		tabLayout.addTab(tabLayout.newTab().setText("Playlists"));
 		tabLayout.addTab(tabLayout.newTab().setText("Genres"));
 		tabLayout.addTab(tabLayout.newTab().setText("Albums"));
+		tabLayout.addTab(tabLayout.newTab().setText("Artists"));
+		tabLayout.addTab(tabLayout.newTab().setText("Folders"));
 		tabLayout.setTabGravity(TabLayout.GRAVITY_CENTER);
 		tabLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
-		tabLayout.setSelectedTabIndicatorHeight(5);
+		tabLayout.setSelectedTabIndicatorHeight(2);
 		tabLayout.setTabTextColors(Color.WHITE, Color.CYAN);
 
 		Pager adapter = new Pager(getSupportFragmentManager(), listFragments);
+		//viewPager.setOffscreenPageLimit(8);
 		viewPager.setAdapter(adapter);
 		//tabLayout.setupWithViewPager(viewPager);
 		tabLayout.setOnTabSelectedListener(this);
@@ -265,7 +265,7 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
 			(CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
 		collapsingToolbar.setTitleEnabled(false);
 		AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.appbar);
-		appBarLayout.setExpanded(true);
+		appBarLayout.setExpanded(false);
 
 	}
 
@@ -280,7 +280,7 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
 	@Override
 	protected void onStop() {
 		Log.i("MainActivity", "IN MainActivity onStop() CALLED");
-		SharedPreferences preferences = getSharedPreferences(NewActivity.class.getSimpleName(), MODE_PRIVATE);
+		SharedPreferences preferences = getSharedPreferences(MainActivity.class.getSimpleName(), MODE_PRIVATE);
 		SharedPreferences.Editor editor = preferences.edit();
 
 		editor.putInt("selectedTab", tabLayout.getSelectedTabPosition());
@@ -292,7 +292,7 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
 
 	private void restorePrefs() {
 		// Get selected Tab position
-    SharedPreferences preferences = getSharedPreferences(NewActivity.class.getSimpleName(), MODE_PRIVATE);
+    SharedPreferences preferences = getSharedPreferences(MainActivity.class.getSimpleName(), MODE_PRIVATE);
 		selectedTab = preferences.getInt("selectedTab", 0);
 		pos = preferences.getInt("pos", 0);
 		viewPager.setCurrentItem(selectedTab);
@@ -308,21 +308,30 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
 	long lastPressedTime ;
 	@Override
 	public void onBackPressed() {
-		int TIME_INTERVAL = 2000;
-		if(lastPressedTime + TIME_INTERVAL > System.currentTimeMillis()) {
-			Log.i("MainActivity", "In MainActivity   >>>>> onBackPressed CALLED ;)");
-			stopService(serviceIntent);
-			if(ImageLoader.getInstance().isInited()) {
-				Log.i("MainActivity", "In MainActivity   >>>>> ImageLoader is inited ;)");
-				//Utilities.toastLong(MainActivity.this, "In MainActivity   >>>>> ImageLoader is inited ;)" );
-				ImageLoader.getInstance().stop();
-			}
-			super.onBackPressed();
-		} else {
-			Utilities.toastShort(this, "Press again to exit");
-		}
+		int count = getSupportFragmentManager().getBackStackEntryCount();
 
-		lastPressedTime = System.currentTimeMillis();
+    if (count == 0) {
+			int TIME_INTERVAL = 2000;
+			if(lastPressedTime + TIME_INTERVAL > System.currentTimeMillis()) {
+				Log.i("MainActivity", "In MainActivity   >>>>> onBackPressed CALLED ;)");
+				stopService(serviceIntent);
+				if(ImageLoader.getInstance().isInited()) {
+					Log.i("MainActivity", "In MainActivity   >>>>> ImageLoader is inited ;)");
+					//Utilities.toastLong(MainActivity.this, "In MainActivity   >>>>> ImageLoader is inited ;)" );
+					ImageLoader.getInstance().stop();
+				}
+				Constants.F_MUSIC_FOLDERS.clear();
+				Constants.S_MUSIC_FOLDERS.clear();
+				super.onBackPressed();
+			} else {
+				Utilities.toastShort(this, "Press again to exit");
+			}
+
+			lastPressedTime = System.currentTimeMillis();
+    } else {
+			getSupportFragmentManager().popBackStack();
+    }
+		
 	}
 
 
@@ -365,18 +374,18 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
 		dbHelper.close();
 	}
 
-	private void addTracksToDataBase(ArrayList<TracksModel> result) {
+	private void addTracksToDataBase(ArrayList<TracksModel> input) {
 		DatabaseHelper dbHelper = DatabaseHelper.getInstance(getApplicationContext());
 		TracksDb tracksDb = TracksDb.getInstance(dbHelper);
 		List<TracksModel> dbTracks = tracksDb.getAllTracks();
 		//Log.e("DataBase Task", "dbTracks size: " + dbTracks.size());
 		int tt = dbTracks == null ? 0: dbTracks.size();
-		if(result != null) {
-			if(tt < result.size() || tt > result.size()) {
+		if(input != null) {
+			if(tt < input.size() || tt > input.size()) {
 				tracksDb.deleteDb(getApplicationContext());
 				tracksDb = TracksDb.getInstance(dbHelper);
 				Log.e(TAG, " adding tracks to " + DbConstants.PLAYLIST_TRACKS_TABLE + " ...  ");
-				for(TracksModel track : result) {
+				for(TracksModel track : input) {
 					tracksDb.addTracks(track);
 				}
 			} else {
@@ -391,7 +400,7 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
 	{
 		@Override
 		protected ArrayList<TracksModel> doInBackground(Void... p1) {
-			return MyMediaQuery.getTrack(getApplicationContext());
+			return MyMediaQuery.getAllTracks(getApplicationContext());
 		}
 
 		@Override
@@ -399,6 +408,7 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
 			super.onPostExecute(result);
 			Log.e(TAG, "RESULT = " + result.size());
 			new CreateDataBaseTask().execute(result);
+			
 		}
 	}
 
@@ -419,8 +429,9 @@ public class MainActivity extends AppCompatActivity implements TabLayout.OnTabSe
 		}
 		
 	}
-
-
+	
+	
+	
 	public class Pager extends FragmentStatePagerAdapter
 	{
 		List<Fragment> listFrags;

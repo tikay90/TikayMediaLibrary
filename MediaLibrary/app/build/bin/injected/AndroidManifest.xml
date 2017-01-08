@@ -6,7 +6,7 @@
 	android:versionName="10.1.0">
 
 	<uses-sdk
-		android:minSdkVersion="10"
+		android:minSdkVersion="9"
 		android:targetSdkVersion="25"/>
 
 	<uses-permission
@@ -21,6 +21,7 @@
 	<application
 		android:allowBackup="true"
 		android:name=".application.MyApp"
+		android:alwaysRetainTaskState="true"
 		android:icon="@drawable/icon"
 		android:label="@string/app_name"
 		android:theme="@style/AppTheme">
@@ -28,7 +29,6 @@
 		<activity
 			android:name=".activities.MainActivity"
 			android:launchMode="singleTask"
-			android:alwaysRetainTaskState="true"
 			android:label="@string/app_name">
 
 			<intent-filter>
@@ -71,6 +71,32 @@
 
 		<activity
 			android:name=".activities.ArtistTracks"
+			android:alwaysRetainTaskState="true"
+			android:launchMode="singleTask"
+			android:label="@string/app_name"
+			android:parentActivityName=".activities.MainActivity">
+
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".activities.MainActivity"/>
+
+		</activity>
+
+		<activity
+			android:name=".activities.GenreTracks"
+			android:alwaysRetainTaskState="true"
+			android:launchMode="singleTask"
+			android:label="@string/app_name"
+			android:parentActivityName=".activities.MainActivity">
+
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".activities.MainActivity"/>
+
+		</activity>
+
+		<activity
+			android:name=".activities.FolderSinglePane"
 			android:alwaysRetainTaskState="true"
 			android:launchMode="singleTask"
 			android:label="@string/app_name"

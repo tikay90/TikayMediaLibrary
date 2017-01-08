@@ -1,27 +1,30 @@
 package com.tikay.medialibrary.recycler_adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.tikay.medialibrary.R;
-import com.tikay.medialibrary.models.GenreModel;
-import java.util.ArrayList;
-import android.view.View.OnClickListener;
-import android.widget.LinearLayout;
-import com.tikay.medialibrary.utils.Utilities;
-import android.content.Intent;
 import com.tikay.medialibrary.activities.GenreTracks;
-import android.util.Log;
+import com.tikay.medialibrary.models.GenreModel;
+import com.tikay.medialibrary.utils.AnimUtils;
+import com.tikay.medialibrary.utils.Utilities;
+import java.util.ArrayList;
 
 public class GenreAdapter extends RecyclerView.Adapter<GenreAdapter.MyViewHolder>
 {
 	private LayoutInflater inflater;
 	ArrayList<GenreModel>  genreList;
 	Context context;
+
+	private int previousPosition = 0;
 
 	public GenreAdapter(Context context, ArrayList<GenreModel> genreList) {
 		inflater = LayoutInflater.from(context);
@@ -43,6 +46,13 @@ public class GenreAdapter extends RecyclerView.Adapter<GenreAdapter.MyViewHolder
 		viewHolder.tvName.setText(item.getGenreName());
 		//viewHolder.iv.setImageResource(7);
 		getName(position);
+
+		if(position > previousPosition) { //scrolling downwards
+			AnimUtils.animateRecyclerView(viewHolder, true);
+		} else { //scrolling upwards
+			AnimUtils.animateRecyclerView(viewHolder, false);
+		}
+		previousPosition = position;
 	}
 
 	@Override

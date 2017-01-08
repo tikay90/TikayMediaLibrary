@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!--<item name="activity_masterdetail" type="layout">@layout/fragment_dualpane</item>-->
+	<item name="activity_masterdetail" type="layout">@layout/fragment_singlepane</item>
+	
+	<bool name="isDual">true</bool>
+</resources>

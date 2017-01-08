@@ -94,7 +94,7 @@ public class FolderAdapter extends BaseAdapter
 			final FolderModel item = songList.get(position);
 			viewHolder.folderName.setText(item.getFolderName());
 			viewHolder.folderPath.setText(item.getFolderPath() == null ? "No path" : item.getFolderPath());
-			viewHolder.ivThumbnail.setImageBitmap(item.getFolderImg());
+			//viewHolder.ivThumbnail.setImageBitmap(item.getFolderImg());
 			//new FolderAdapterTask(context,item.getFolderPath(),viewHolder.ivThumbnail).execute();
 		} catch(Exception e) {
 			Log.e(TAG, TAG + "  " + e.toString());

@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-	<item name="min_layout_weight" type="integer" format="float">10.0</item>
-	<item name="mid_layout_weight" type="integer" format="float">80.0</item>
-	<item name="max_layout_weight" type="integer" format="float">90.0</item>
-</resources>

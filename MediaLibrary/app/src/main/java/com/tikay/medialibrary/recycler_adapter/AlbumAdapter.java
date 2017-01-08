@@ -2,34 +2,22 @@ package com.tikay.medialibrary.recycler_adapter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.support.v7.graphics.Palette;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.tikay.medialibrary.R;
 import com.tikay.medialibrary.models.AlbumModel;
-import com.tikay.medialibrary.recycler_adapter.AlbumsAdapter;
-import com.tikay.medialibrary.utils.Utilities;
-import de.hdodenhof.circleimageview.CircleImageView;
+import com.tikay.medialibrary.utils.AnimUtils;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.Random;
 
 public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.MyViewHolder>
 {
@@ -37,7 +25,8 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.MyViewHolder
 	private ArrayList<AlbumModel> albumList;
 	private ArrayList<AlbumModel> list = null;
   private ArrayList<AlbumModel> arraylist;
-	private String TAG = AlbumsAdapter.class.getSimpleName();
+
+	private int previousPosition = 0;
 
 	public class MyViewHolder extends RecyclerView.ViewHolder
 	{
@@ -103,13 +92,20 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.MyViewHolder
 					holder.ivThumbnail.setImageBitmap(bitmap);
 				}
 				@Override
-				public void onLoadFailed(Exception e, Drawable d){
+				public void onLoadFailed(Exception e, Drawable d) {
 					holder.ivThumbnail.setImageResource(R.drawable.album_default);
 					//holder.rl.setBackgroundResource(R.drawable.album_default);
 				}
 			});
+
+		if(position > previousPosition) { //scrolling downwards
+			AnimUtils.animateRecyclerView(holder, true);
+		} else { //scrolling upwards
+			AnimUtils.animateRecyclerView(holder, false);
+		}
+		previousPosition = position;
 	}
-	
+
 	@Override
 	public int getItemCount() {
 		return albumList.size();

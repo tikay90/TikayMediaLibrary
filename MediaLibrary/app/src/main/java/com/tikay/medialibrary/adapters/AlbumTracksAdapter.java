@@ -1,12 +1,18 @@
 package com.tikay.medialibrary.adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.SimpleTarget;
 import com.tikay.medialibrary.R;
 import com.tikay.medialibrary.models.AlbumTracksModel;
 import com.tikay.medialibrary.utils.ImageUtils;
@@ -100,7 +106,23 @@ public class AlbumTracksAdapter extends BaseAdapter
 
 		try {
 			//viewHolder.ivPlaylistThumbnail.setImageURI(item.getArtUri());
-			ImageUtils.displayRoundImage(item.getAlbumArt(), viewHolder.ivAlbumTracksThumbnail);
+			//ImageUtils.displayRoundImage(item.getAlbumArt(), viewHolder.ivAlbumTracksThumbnail);
+			Glide
+				.with(context)
+				.load(item.getAlbumArt())
+				.asBitmap()
+				.diskCacheStrategy(DiskCacheStrategy.ALL)
+				.into(new SimpleTarget<Bitmap>() {  
+					@Override
+					public void onResourceReady(Bitmap bitmap, GlideAnimation glideAnimation) {
+						viewHolder.ivAlbumTracksThumbnail.setImageBitmap(bitmap);
+					}
+					@Override
+					public void onLoadFailed(Exception e, Drawable d) {
+						viewHolder.ivAlbumTracksThumbnail.setImageResource(R.drawable.music_m_logo);
+						//holder.rl.setBackgroundResource(R.drawable.album_default);
+					}
+				});
 		} catch(Exception e) {
 			e.printStackTrace();
 		}

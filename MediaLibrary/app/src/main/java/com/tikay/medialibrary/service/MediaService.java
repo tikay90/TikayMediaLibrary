@@ -141,7 +141,7 @@ MediaPlayer.OnErrorListener,MediaPlayer.OnSeekCompleteListener,MediaPlayer.OnPre
 		try {
 			String songPath = FOLDER_TRACKS.get(position).getFolderPath();
 			pathToTrack = songPath;
-			Utilities.toastShort(MediaService.this, "" + songPath);
+			//Utilities.toastShort(MediaService.this, "" + songPath);
 			setMediaPlayerPath();
 		} catch(Exception e) {
 			Log.e(TAG, "getFolderTrackPosition() <<>> " + e.getMessage());

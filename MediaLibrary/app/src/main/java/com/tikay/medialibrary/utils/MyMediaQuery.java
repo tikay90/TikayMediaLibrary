@@ -17,13 +17,14 @@ import com.tikay.medialibrary.models.PlaylistModel;
 import com.tikay.medialibrary.models.PlaylistTrackModel;
 import com.tikay.medialibrary.models.TracksModel;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 
 public class MyMediaQuery
 {
 	/**************************************************************************************************
 	 TRACKS QUERY METHOD
 	 **************************************************************************************************/
-	public static ArrayList<TracksModel> getTrack(Context context) {
+	public static ArrayList<TracksModel> getAllTracks(Context context) {
 		ArrayList<TracksModel> listOfSongs = new ArrayList<TracksModel>();
 		Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
 		Cursor cursor = null;
@@ -326,8 +327,10 @@ public class MyMediaQuery
 				Log.e("Genry query", " GET-GENRY <<>>  error @ " + e.getMessage());
 			}
 		}
-
-
+		LinkedHashSet<GenreModel> sortedGenry = new LinkedHashSet<GenreModel>(listsOfGenry);
+		listsOfGenry.clear();
+		listsOfGenry.addAll(sortedGenry);
+		
 		return listsOfGenry;
 	}
 

@@ -12,6 +12,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.tikay.medialibrary.R;
 import com.tikay.medialibrary.models.ArtistModel;
 import com.tikay.medialibrary.recycler_adapter.ArtistAdapter;
+import com.tikay.medialibrary.utils.AnimUtils;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -21,6 +22,8 @@ public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.MyViewHold
   private ArrayList<ArtistModel> list = null;
   private ArrayList<ArtistModel> arraylist;
   private Context context;
+
+	private int previousPosition = 0;
 
 
 	public class MyViewHolder extends RecyclerView.ViewHolder
@@ -68,6 +71,13 @@ public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.MyViewHold
 			.load(R.drawable.apaawa)
 			.diskCacheStrategy(DiskCacheStrategy.ALL)
 			.into(holder.ivArtistThumbnail);
+
+		if(position > previousPosition) { //scrolling downwards
+			AnimUtils.animateRecyclerView(holder, true);
+		} else { //scrolling upwards
+			AnimUtils.animateRecyclerView(holder, false);
+		}
+		previousPosition = position;
 	}
 
 	@Override

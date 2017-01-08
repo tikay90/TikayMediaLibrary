@@ -2,7 +2,6 @@ package com.tikay.medialibrary.recycler_adapter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
@@ -17,9 +16,7 @@ import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
 import android.view.View.OnCreateContextMenuListener;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.ImageView;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -27,6 +24,7 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.tikay.medialibrary.R;
 import com.tikay.medialibrary.models.TracksModel;
+import com.tikay.medialibrary.utils.AnimUtils;
 import com.tikay.medialibrary.utils.Utilities;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -37,10 +35,11 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.MyViewHold
   private ArrayList<TracksModel> list = null;
   private ArrayList<TracksModel> arraylist;
   private Context context;
-	OnMenuItemClickListener onMenuItemClickListener;
+	private OnMenuItemClickListener onMenuItemClickListener;
 	private String TRACK_NAME;
-	View v;
+	private View v;
 	private LayoutInflater inflater = null;
+	private int previousPosition = 0;
 
 	public class MyViewHolder extends RecyclerView.ViewHolder implements OnCreateContextMenuListener,OnMenuItemClickListener
 	{
@@ -51,7 +50,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.MyViewHold
 			super(view);
 			v = view;
 			view.setOnCreateContextMenuListener(this);
-			
+
 			songName = (TextView)view.findViewById(R.id.tvSong_title);
 			albumName = (TextView)view.findViewById(R.id.tvSong_album);
 			songDuration = (TextView)view.findViewById(R.id.tvSongDuration);
@@ -87,10 +86,10 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.MyViewHold
 			String name = "";
 			switch(item.getOrder()) {
 				case 0:
-					try{
-					showPopup(context,v);
-					}catch(Exception e){
-						Log.e("Error....",e.toString());
+					try {
+						showPopup(context, v);
+					} catch(Exception e) {
+						Log.e("Error....", e.toString());
 					}
 					name = item.getTitle().toString();
 					break;
@@ -113,22 +112,22 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.MyViewHold
     }
 
 		/*
-		private void displayPopupWindow(Context context) {
-			PopupWindow popup = new PopupWindow(DemoWindowActivity.this);
-			View layout = context.getLayoutInflater().inflate(R.layout.popup_content, null);
-			popup.setContentView(layout);
-			// Set content width and height
-			popup.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
-			popup.setWidth(WindowManager.LayoutParams.WRAP_CONTENT);
-			// Closes the popup window when touch outside of it - when looses focus
-			popup.setOutsideTouchable(true);
-			popup.setFocusable(true);
-			// Show anchored to button
-			popup.setBackgroundDrawable(new BitmapDrawable());
-			popup.showAsDropDown(anchorView);
-		}
-		*/
-		
+		 private void displayPopupWindow(Context context) {
+		 PopupWindow popup = new PopupWindow(DemoWindowActivity.this);
+		 View layout = context.getLayoutInflater().inflate(R.layout.popup_content, null);
+		 popup.setContentView(layout);
+		 // Set content width and height
+		 popup.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
+		 popup.setWidth(WindowManager.LayoutParams.WRAP_CONTENT);
+		 // Closes the popup window when touch outside of it - when looses focus
+		 popup.setOutsideTouchable(true);
+		 popup.setFocusable(true);
+		 // Show anchored to button
+		 popup.setBackgroundDrawable(new BitmapDrawable());
+		 popup.showAsDropDown(anchorView);
+		 }
+		 */
+
 		private void showPopup(Context context, View v) {
 			PopupMenu menu = new PopupMenu(context, v);
 			menu.getMenu().add(Menu.NONE, 1, 1, "Share");
@@ -153,7 +152,7 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.MyViewHold
 
 				});
 		}
-		
+
 	}
 
 	public TracksAdapter(Context context, ArrayList<TracksModel> songList) {
@@ -197,6 +196,13 @@ public class TracksAdapter extends RecyclerView.Adapter<TracksAdapter.MyViewHold
 					//holder.rl.setBackgroundResource(R.drawable.album_default);
 				}
 			});
+
+		if(position > previousPosition) { //scrolling downwards
+			AnimUtils.animateRecyclerView(holder, true);
+		} else { //scrolling upwards
+			AnimUtils.animateRecyclerView(holder, false);
+		}
+		previousPosition = position;
 	}
 
 	@Override

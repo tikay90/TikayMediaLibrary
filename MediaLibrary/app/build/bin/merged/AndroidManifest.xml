@@ -5,7 +5,7 @@
     android:versionName="10.1.0" >
 
     <uses-sdk
-        android:minSdkVersion="10"
+        android:minSdkVersion="9"
         android:targetSdkVersion="25" />
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -15,12 +15,12 @@
     <application
         android:name="com.tikay.medialibrary.application.MyApp"
         android:allowBackup="true"
+        android:alwaysRetainTaskState="true"
         android:icon="@drawable/icon"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
             android:name="com.tikay.medialibrary.activities.MainActivity"
-            android:alwaysRetainTaskState="true"
             android:label="@string/app_name"
             android:launchMode="singleTask" >
             <intent-filter>
@@ -51,6 +51,26 @@
         </activity>
         <activity
             android:name="com.tikay.medialibrary.activities.ArtistTracks"
+            android:alwaysRetainTaskState="true"
+            android:label="@string/app_name"
+            android:launchMode="singleTask"
+            android:parentActivityName="com.tikay.medialibrary.activities.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.MainActivity" />
+        </activity>
+        <activity
+            android:name="com.tikay.medialibrary.activities.GenreTracks"
+            android:alwaysRetainTaskState="true"
+            android:label="@string/app_name"
+            android:launchMode="singleTask"
+            android:parentActivityName="com.tikay.medialibrary.activities.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.MainActivity" />
+        </activity>
+        <activity
+            android:name="com.tikay.medialibrary.activities.FolderSinglePane"
             android:alwaysRetainTaskState="true"
             android:label="@string/app_name"
             android:launchMode="singleTask"

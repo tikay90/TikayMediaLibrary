@@ -113,7 +113,7 @@ public class PlaylistDb
 	}
 
 	// Updating single Playlist
-	public int updateTracks(PlaylistModel playlist) {
+	public int updatePlaylist(PlaylistModel playlist) {
 		SQLiteDatabase db = sql.getWritableDatabase();
 
 		ContentValues values = new ContentValues();
@@ -128,7 +128,7 @@ public class PlaylistDb
 	}
 
 	// Deleting single TracksModel
-	public void deleteTracks(TracksModel TracksModel) {
+	public void deletePlaylist(TracksModel TracksModel) {
 		SQLiteDatabase db = sql.getWritableDatabase();
 		db.delete(DEFAULT_PLAYLIST_TABLE, COLUMN_ID + " = ?",
 							new String[] { String.valueOf(TracksModel.getSongId()) });

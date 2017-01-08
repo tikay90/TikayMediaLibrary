@@ -91,7 +91,7 @@ public class PlaylistTracksAdapter extends BaseAdapter
 			viewHolder.duration = (TextView)view.findViewById(R.id.tv_ptd_duration);
 			viewHolder.album = (TextView)view.findViewById(R.id.tv_ptd_album);
 			viewHolder.ivPlaylistThumbnail = (ImageView)view.findViewById(R.id.iv_ptd);
-			viewHolder.civ = (CircleImageView)view.findViewById(R.id.civ_ptd);
+			//viewHolder.civ = (CircleImageView)view.findViewById(R.id.civ_ptd);
 
 			view.setTag(viewHolder);
 		} else {

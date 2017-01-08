@@ -2,8 +2,29 @@
 <resources>
 	<item name="windowWeightSum" type="integer" format="float">100.0</item>
 
-	<item name="min_layout_weight" type="integer" format="float">15.0</item>
+	<item name="min_layout_weight" type="integer" format="float">20.0</item>
 	<item name="mid_layout_weight" type="integer" format="float">70.0</item>
-	<item name="max_layout_weight" type="integer" format="float">85.0</item>
+	<item name="max_layout_weight" type="integer" format="float">80.0</item>
 	
+	<item name="ripple_duration" type="integer" format="integer">300</item>
+	
+	<!--for track details-->
+	<item name="min_weight" type="integer" format="float">15.0</item>
+	<item name="max_weight" type="integer" format="float">70.0</item>
+	
+	<!--folder detail layout weight attr-->
+	<item name="fd_min_weight" type="integer" format="float">15.0</item>
+	<item name="fd_max_weight" type="integer" format="float">85.0</item>
+
+	<!--folder content detail layout weight attr-->
+	<item name="fcd_min_weight" type="integer" format="float">15.0</item>
+	<item name="fcd_max_weight" type="integer" format="float">85.0</item>
+	
+	<item name="min_ratio" type="integer" format="float">40.0</item>
+	<item name="max_ratio" type="integer" format="float">60.0</item>
+	
+	<item name="uni_min_ratio" type="integer" format="float">45.0</item>
+	<item name="uni_max_ratio" type="integer" format="float">55.0</item>
+	
+	<bool name="isTablet">false</bool>
 </resources>

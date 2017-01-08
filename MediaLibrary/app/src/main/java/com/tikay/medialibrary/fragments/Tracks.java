@@ -325,8 +325,12 @@ public class Tracks extends Fragment implements /*OnItemClickListener,*/OnQueryT
 
 		@Override
 		protected ArrayList<TracksModel> doInBackground(Void... p1) {
-			ArrayList<TracksModel> listOfSongs = MyMediaQuery.getTrack(getContext());
-
+			ArrayList<TracksModel> listOfSongs = null;
+			try{
+			listOfSongs = MyMediaQuery.getAllTracks(getContext());
+			}catch(Exception e){
+				Log.e("TracksTask", " ERROR in TracksTask: ----  " + e.getMessage());
+			}
 			return listOfSongs;
 		}
 
@@ -335,20 +339,6 @@ public class Tracks extends Fragment implements /*OnItemClickListener,*/OnQueryT
 			super.onPostExecute(result);
 			try {
 				tracks = result;
-				//tracks_No.setText(tracks.size() + " TRACKS");
-				/*adapter = new TracksAdapter(getActivity().getApplicationContext(), tracks);
-
-				SharedPreferences preferences = getActivity().getSharedPreferences(Constants.Tracks, getActivity().MODE_PRIVATE);
-				int index = preferences.getInt("trackPosition", 0);
-				int top = preferences.getInt("top", 0);
-
-				lv.setAdapter(adapter);
-				lv.setSelectionFromTop(index, top);
-
-				lv.setTextFilterEnabled(true);
-				lv.setOnItemClickListener(Tracks.this);
-				//searchView.setOnQueryTextListener(Tracks.this);
-				*/
 				initRecyclerView(tracks);
 			} catch(Exception e) {
 				Log.e("MyTask", " ERROR ----  " + e.getMessage());

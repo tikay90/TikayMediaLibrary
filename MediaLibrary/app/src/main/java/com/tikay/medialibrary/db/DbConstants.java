@@ -34,9 +34,9 @@ public class DbConstants
 
 	public static final String CREATE_DEFAULT_PLAYLIST_TABLE = "CREATE TABLE " + DEFAULT_PLAYLIST_TABLE 
 	+ "("
-	+ COLUMN_ID + " INTEGER PRIMARY KEY," 
-	+ COLUMN_NAME + " TEXT," + COLUMN_TYPE 
-	+ " INTEGER" 
+	+ COLUMN_ID   + " INTEGER PRIMARY KEY," 
+	+ COLUMN_NAME + " TEXT," 
+	+ COLUMN_TYPE + " INTEGER" 
 	+ ")";
 
 

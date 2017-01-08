@@ -74,7 +74,7 @@ public class GenreModel implements Parcelable
 	public void setGenreTracks(String genreTracks) {
 		this.genreTracks = genreTracks;
 	}
-	
+
 	public String getGenreTracks() {
 		return genreTracks;
 	}
@@ -93,5 +93,32 @@ public class GenreModel implements Parcelable
 
 	public long getGenreID() {
 		return genreID;
+	}
+
+	/*
+	 equals and hashCode needs to be overriden in order to 
+	 filter objects of this class with Set to remove duplicates
+	 */
+	@Override
+	public boolean equals(Object obj) {
+
+    if(obj instanceof GenreModel) {
+			GenreModel temp = (GenreModel) obj;
+			if(this.genreName.equalsIgnoreCase(temp.genreName) && this.genreID == temp.genreID)//&& this.genreTracks == temp.genreTracks )
+				return true;
+    }
+		
+    return false;
+
+	}
+
+
+	@Override
+	public int hashCode() {
+		int hashCode = (int)genreID * 20;
+		hashCode += genreName.hashCode();
+    //return (this.genreName.hashCode() + this.genreID + this.url.hashCode() + this.description.hashCode());
+
+		return hashCode;
 	}
 }

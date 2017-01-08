@@ -24,13 +24,13 @@ public class Genre extends Fragment
 	private GenreAdapter adapter;
 	private View v;
 	private ArrayList<GenreModel> genres = new ArrayList<GenreModel>();
-
-	private String TAG = "Genre";
+	private String TAG = Genre.class.getSimpleName();
+	private String KEY_LIST = "genre_key_list";
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		writeLogcatToFile();
+		Utilities.writeLogcatToFile(TAG);
 		Log.e(TAG, "onCreate CALLED");
 		setRetainInstance(true);
 		setHasOptionsMenu(true);
@@ -39,10 +39,10 @@ public class Genre extends Fragment
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		Log.e(TAG, "onCreateView CALLED");
-		v = inflater.inflate(R.layout.genre,container,false);
-		
+		v = inflater.inflate(R.layout.genre, container, false);
+
 		initWidgets();
-		
+
 		return v;
 	}
 
@@ -54,39 +54,32 @@ public class Genre extends Fragment
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		Log.e(TAG, "onActivityCreated CALLED");
-		
-		new GenresTask().execute();
+		if(savedInstanceState == null)
+			new GenresTask().execute();
+		else
+			restoreState(savedInstanceState);
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		outState.putParcelableArrayList(KEY_LIST,genres);
+		super.onSaveInstanceState(outState);
 	}
 	
-	private void writeLogcatToFile() {
-		Log.e(TAG, ">>>>>>>  printLogcat() <<<<<<<");
-		String root_sd = Environment.getExternalStorageDirectory().toString();
-		File mylogs = new File(root_sd, ".TikayLogs");
-		String name = "Genres.log";
-		
-		if(!mylogs.exists()) {
-			if(Utilities.isSdCardPresent()) {
-				mylogs.mkdir();
-			}
-		}
-		final long maxFileSize = 1024 * 100;  // 100KB
-		File logFile = new File(mylogs, name);
-		if(logFile.length() >= maxFileSize) {
-			logFile.delete();
-			Log.e(TAG, logFile.getName() + " deleted");
-			//Utilities.toastShort(this, logFile.getName()+" deleted");
-			logFile = new File(mylogs, name);
-		}
-		try {
-			Process process = Runtime.getRuntime().exec("logcat -c");
-			process = Runtime.getRuntime().exec("logcat -v time -f "  + /*mylogs.getAbsolutePath()+"/tikay_log.log"*/logFile.getAbsolutePath());
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
+
+	private void restoreState(Bundle savedInstanceState) {
+		genres = savedInstanceState.getParcelableArrayList(KEY_LIST);
+		initRecycler(genres);
 	}
-	
-	
-	
+
+	private void initRecycler(ArrayList<GenreModel> genres) {
+		adapter = new GenreAdapter(getActivity(), genres);
+		recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+		recyclerView.setItemAnimator(new DefaultItemAnimator());
+		recyclerView.setAdapter(adapter);
+	}
+
+
 	private class GenresTask extends AsyncTask<Void,Integer,ArrayList<GenreModel>>
 	{
 		@Override
@@ -100,19 +93,12 @@ public class Genre extends Fragment
 
 			try {
 				genres = result;
-				adapter = new GenreAdapter(getActivity(), genres);
-				//SharedPreferences preferences = getActivity().getSharedPreferences(Constants.Genre, getActivity().MODE_PRIVATE);
-				//int index = preferences.getInt("albumPosition", 0);
-				//int top = preferences.getInt("up", 0);
-				recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-				recyclerView.setItemAnimator(new DefaultItemAnimator());
-				recyclerView.setAdapter(adapter);
-
+				initRecycler(genres);
 			} catch(Exception e) {
-				Log.e("MyTask", " ERROR ----  " + e.getMessage());
+				Log.e("GenreTask", "GenreTask ERROR ----  " + e.getMessage());
 			}
 		}
 
 	}
-	
+
 }

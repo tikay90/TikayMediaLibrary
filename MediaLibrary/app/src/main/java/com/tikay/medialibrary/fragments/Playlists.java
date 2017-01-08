@@ -57,13 +57,13 @@ MenuItem.OnMenuItemClickListener
 	private TextView tvCreatePlaylist;
 	private int duration;
 	private	PlaylistAdapter adapter;
-	private String TAG = "Playlists";
+	private String TAG = Playlists.class.getSimpleName();
 	private String KEY = "key";
 
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		Utilities.writeLogcatToFile(TAG, TAG);
+		Utilities.writeLogcatToFile(TAG);
 		Log.i(TAG, "IN PLAYLIST onCreate() CALLED");
 		super.onCreate(savedInstanceState);
 		setRetainInstance(true);

@@ -18,8 +18,8 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.tikay.medialibrary.R;
 import com.tikay.medialibrary.db.DbConstants;
 import com.tikay.medialibrary.models.PlaylistModel;
+import com.tikay.medialibrary.utils.AnimUtils;
 import com.tikay.medialibrary.utils.Constants;
-import com.tikay.medialibrary.utils.PlaylistUtils;
 import com.tikay.medialibrary.utils.Utilities;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -34,7 +34,9 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.MyView
 	public static String PLAYLIST_NAME = "";
 	OnMenuItemClickListener onMenuItemClickListener;
 
-	public PlaylistAdapter(Context context, ArrayList<PlaylistModel> songList,OnMenuItemClickListener onMenuItemClickListener) {
+	private int previousPosition = 0;
+
+	public PlaylistAdapter(Context context, ArrayList<PlaylistModel> songList, OnMenuItemClickListener onMenuItemClickListener) {
 		this.context = context;
 		this.list = songList;
 		this.songList = songList;
@@ -68,8 +70,8 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.MyView
 		private String[] menuItems2 = {"Info"};
 		private String[] defaultPlaylist = DbConstants.DEFAULT_PLAYLIST;
 
-		
-		
+
+
 		@Override
 		public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 			try {
@@ -79,7 +81,7 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.MyView
 				menu.setHeaderTitle(name);
 				//Utilities.toastShort(context, PlaylistUtils.getPlaylistID(context,name)+"");
 				//Utilities.toastShort(context, name);
-				
+
 				if(name.equals(defaultPlaylist[0]) || name.equals(defaultPlaylist[1]) || name.equals(defaultPlaylist[2]) || name.equals(defaultPlaylist[3])) {
 					for(int i = 0; i < menuItems2.length; i++) {
 						menuItem = menu.add(Menu.NONE, i, i, menuItems2[i]);
@@ -97,7 +99,7 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.MyView
 			}
 		}
 
-		
+
 		@Override
     public boolean onMenuItemClick(MenuItem item) {
 			String name = "";
@@ -115,20 +117,20 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.MyView
 					name = item.getTitle().toString();
 					break;
 			}
-			
+
 			Utilities.toastShort(context, name);
 			Utilities.toastShort(context, pName);
       return true;
     }
-		
-		
+
+
 	}
 
 
 	@Override
 	public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 		View itemView = null;
-		switch(viewType){
+		switch(viewType) {
 			case Constants.FIRST_ROW:
 				itemView =	inflater.inflate(R.layout.default_playlist_details, parent, false);
 				break;
@@ -136,7 +138,7 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.MyView
 				itemView =	inflater.inflate(R.layout.playlist_details, parent, false);
 				break;
 		}
-		
+
 		return new MyViewHolder(itemView, viewType);
 	}
 
@@ -152,6 +154,13 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.MyView
 			.load(R.drawable.ic_launcher)
 			.diskCacheStrategy(DiskCacheStrategy.ALL)
 			.into(holder.ivPlaylistThumbnail);
+
+		if(position > previousPosition) { //scrolling downwards
+			AnimUtils.animateRecyclerView(holder, true);
+		} else { //scrolling upwards
+			AnimUtils.animateRecyclerView(holder, false);
+		}
+		previousPosition = position;
 	}
 
 	@Override

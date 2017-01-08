@@ -24,26 +24,7 @@
 		<item name="rippleColor">@android:color/white</item>
 	</style>
 	
-	<style name="CustomToolbarTheme" parent="ThemeOverlay.AppCompat.Light">
-		<item name="android:textColorPrimary">#fff</item>
-		<item name="android:textColorSecondary">@color/colorAccent</item>
-		<item name="android:textColorTertiary">#000000</item>
-	</style>
+	
 
-	<color name="act_import_file">#7A4B42</color>
-	<color name="btn_import_files">#979797</color>
-	<color name="gray">#979797</color>
-	<color name="black">#000000</color>
-	<color name="white">#FFFFFF</color>
-	<color name="darker_gray">#1F1D1E</color>
-	<color name="dark_gray">#FF403E3F</color>
-	<color name="blue">#72BAE7</color>
-	<color name="transparent">#99000000</color>
-	<color name="cyan">#4ED5EA</color>
-
-	<!--
-	<color name="colorPrimary">#00BCD4</color>
-	<color name="colorPrimaryDark">#0097A7</color>
-	<color name="colorAccent">#FF5722</color>
-	-->
+	
 </resources>

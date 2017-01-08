@@ -35,7 +35,9 @@ public class Constants
 
 	public static ArrayList<FolderModel> FOLDER_TRACKS = new ArrayList<FolderModel>();
 	public static ArrayList<FolderModel> CURRENT_FOLDER_TRACKS = new ArrayList<FolderModel>();
-
+	public static ArrayList<FolderModel> F_MUSIC_FOLDERS = new ArrayList<FolderModel>();
+	public static ArrayList<FolderModel> S_MUSIC_FOLDERS = new ArrayList<FolderModel>();
+	
 	public static ArrayList<AlbumTracksModel> ALBUM_TRACKS = new ArrayList<AlbumTracksModel>();
 	public static ArrayList<AlbumTracksModel> CURRENT_ALBUM_TRACKS = new ArrayList<AlbumTracksModel>();
 

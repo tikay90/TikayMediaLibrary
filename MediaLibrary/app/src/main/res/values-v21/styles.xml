@@ -1,17 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 	
 <resources>
-	<!--
-	<style name="AppBaseTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-		<item name="colorPrimary">@color/colorPrimary</item>
-		<item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-		<item name="colorAccent">@color/colorAccent</item>
-		<item name="android:fastScrollThumbDrawable">@drawable/fast_scroll</item>
-	</style>
-	
-	<style name="AppTheme" parent="AppBaseTheme">
-	</style>
-	-->
 	
 	<style name="AppTheme" parent="BaseTheme">
 		<item name="android:colorPrimary">@color/colorPrimary</item>
@@ -21,4 +10,10 @@
 		<!--<item name="android:colorControlHighlight">@color/accent_translucent</item>-->
 		<!--<item name="android:windowSharedElementsUseOverlay">false</item>-->
 	</style>
+	
+	<style name="MyPopupMenu" parent="Theme.AppCompat.Light.NoActionBar">
+    <item name="android:popupBackground">#0F213F</item>
+    <item name="android:disabledAlpha">0.5</item>
+	</style>
+	
 </resources>

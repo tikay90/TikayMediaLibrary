@@ -33,7 +33,6 @@ public class ArtistTracks extends AppCompatActivity implements /*LoaderManager.L
 	private ArtistTracksAdapter adapter;
 	private ListView lv;
 	private ArrayList<ArtistTracksModel> artistTracks = new ArrayList<ArtistTracksModel>()  ;
-	private	ProgressDialog progressDialog;
 	private	Intent broadcastIntent;
 
 	private String KEY="key";
@@ -44,7 +43,7 @@ public class ArtistTracks extends AppCompatActivity implements /*LoaderManager.L
 		setContentView(R.layout.artist_tracks);
 
 		broadcastIntent = new Intent(Constants.BROADCAST_UNIVERSAL);
-		Utilities.initActionBar(this,"Artist", getArtistName());
+		Utilities.initActionBar(this,getArtistName(),"");
 		init();
 		if(savedInstanceState == null) {
 			new AlbumTracksTask().execute();

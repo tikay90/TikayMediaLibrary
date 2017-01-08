@@ -12,7 +12,7 @@ import android.text.TextUtils;
 public class FolderUtil
 {
 	private static String TAG = "Folders";
-	
+
 	public static void scanMedia(Context context, String path) {
 		File extSd = new File(path);
 		File intSd = Environment.getExternalStorageDirectory();
@@ -26,7 +26,7 @@ public class FolderUtil
 		Log.e("ScanMedia", "SCANMEDIA  >>>  " + intSd.getAbsolutePath());
 		Log.e("ScanMedia", "SCANMEDIA  >>>  " + extSd.getAbsolutePath());
 	}
-	
+
 	public static String getMemoryCardPath() {
 		String extDirPath = null;
 		String extSdCardStorage = System.getenv("EXTERNAL_SDCARD_STORAGE");
@@ -40,20 +40,20 @@ public class FolderUtil
 				extDirPath = secondaryStorage;
 			} else if(!TextUtils.isEmpty(externalAddStorage)) {
 				extDirPath = externalAddStorage;
-			} else if(!TextUtils.isEmpty(getExtSdCardPath())) {
+			} else if(new File(getExtSdCardPath()).exists()) {
 				extDirPath = getExtSdCardPath();
 			}
 
 			return extDirPath;
-			
+
 		} catch(Exception e) {
 			Log.e(TAG, e.toString());
 		}
 
 		return "";
 	}
-	
-	
+
+
 	public static String getExtSdCardPath() {
 		try {
 			String strSDCardPath = System.getenv("SECONDARY_STORAGE");
@@ -90,7 +90,11 @@ public class FolderUtil
 			} else if(new File("/storage/sdcard1").exists()) {
 				extSdCardPath = "/storage/sdcard1";
 				Log.i("MAIN", "PATH 6: " + extSdCardPath);
+			} else if(new File("/mnt/m_external_sd").exists()) {
+				extSdCardPath = "/mnt/m_external_sd";
+				Log.i("MAIN", "PATH 7: " + extSdCardPath);
 			}
+
 			Log.e("MAIN", "PATH  >>>>>  : " + extSdCardPath);
 			return extSdCardPath;
 		} catch(Exception e) {
@@ -98,10 +102,10 @@ public class FolderUtil
 		}
 		return null;
 	}
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
 }

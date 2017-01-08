@@ -3,13 +3,21 @@ package com.tikay.medialibrary.models;
 import android.graphics.Bitmap;
 import android.os.Parcelable;
 import android.os.Parcel;
+import java.util.Comparator;
 
-public class FolderModel implements Parcelable
+public class FolderModel implements Parcelable,Comparable<FolderModel>
 {
+
 	private String folderName,folderPath,albumArt;
+	private String folderShortPath;
 	private int folderPosition;
-	private Bitmap folderImg;
 	private int type;
+
+	
+	@Override
+	public int compareTo(FolderModel model) {
+		return this.getFolderName().toLowerCase().compareTo(model.getFolderName().toLowerCase());
+	}
 
 	@Override
 	public int describeContents() {
@@ -22,8 +30,8 @@ public class FolderModel implements Parcelable
 		parcel.writeString(folderPath);
 		parcel.writeString(albumArt);
 		parcel.writeInt(folderPosition);
-		folderImg.writeToParcel(parcel, 0);
 		parcel.writeInt(type);
+		parcel.writeString(folderShortPath);
 	}
 
 	public FolderModel(Parcel parcel) {
@@ -31,20 +39,19 @@ public class FolderModel implements Parcelable
 		folderPath = parcel.readString();
 		albumArt = parcel.readString();
 		folderPosition = parcel.readInt();
-		folderImg = Bitmap.CREATOR.createFromParcel(parcel);
 		type = parcel.readInt();
+		folderShortPath = parcel.readString();
 	}
 
 
 	public static final Parcelable.Creator<FolderModel> CREATOR = new Parcelable.Creator<FolderModel>() {
 		public FolderModel createFromParcel(Parcel in) {
-			//Log.i("PATIENT", "PATIENT ==> createFromParcel()");
+
 			return new FolderModel(in);
 		}
 
 		public FolderModel[] newArray(int size) {
 			return new FolderModel[size];
-
 		}
 	};
 
@@ -53,10 +60,10 @@ public class FolderModel implements Parcelable
 		this.folderPath = folderPath;
 		this.albumArt = albumArt;
 		this.folderPosition = folderPosition;
-		this.folderImg = folderImg;
+		//this.folderImg = folderImg;
 		this.type = type;
 	}
-	
+
 	public FolderModel() {
 
 	}
@@ -85,7 +92,15 @@ public class FolderModel implements Parcelable
 	public String getFolderPath() {
 		return folderPath;
 	}
-	
+
+	public void setFolderShortPath(String folderFullPath) {
+		this.folderShortPath = folderFullPath;
+	}
+
+	public String getFolderShortPath() {
+		return folderShortPath;
+	}
+
 	public void setAlbumArt(String albumArt) {
 		this.albumArt = albumArt;
 	}
@@ -102,12 +117,14 @@ public class FolderModel implements Parcelable
 		return folderPosition;
 	}
 
-	public void setFolderImg(Bitmap folderImg) {
-		this.folderImg = folderImg;
-	}
+	/*
+	 public void setFolderImg(Bitmap folderImg) {
+	 this.folderImg = folderImg;
+	 }
 
-	public Bitmap getFolderImg() {
-		return folderImg;
-	}
+	 public Bitmap getFolderImg() {
+	 return folderImg;
+	 }
+	 */
 
 }

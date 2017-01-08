@@ -1,22 +1,20 @@
 package com.tikay.medialibrary.fragments;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore.Audio.Media;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.OnItemTouchListener;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -34,35 +32,30 @@ import com.tikay.medialibrary.db.DbConstants;
 import com.tikay.medialibrary.models.FolderModel;
 import com.tikay.medialibrary.recycler_adapter.FolderAdapter;
 import com.tikay.medialibrary.utils.Constants;
-import com.tikay.medialibrary.utils.FolderUtil;
+import com.tikay.medialibrary.utils.StorageUtil;
 import com.tikay.medialibrary.utils.Utilities;
-import de.hdodenhof.circleimageview.BuildConfig;
 import de.hdodenhof.circleimageview.R;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
-import android.provider.MediaStore;
-import android.graphics.Color;
 
 public class Folders extends Fragment implements OnItemTouchListener, OnClickListener
 {
-	private ArrayList<File> MUSIC_FILES = new ArrayList<File>();
-	private String TAG = Constants.Folders;
-	private ArrayList<File> UNIQUE_MUSIC_FILES;
+	private static ArrayList<File> MUSIC_FILES = new ArrayList<File>();
+	private String TAG = Folders.class.getSimpleName();
+	private static ArrayList<File> UNIQUE_MUSIC_FILES;
 	private FolderAdapter adapter;
 	private String[] array = new String[]{"Edit", "Delete", "Send"};
 	private Intent broadcastIntent;
 	private ImageButton btnBack;
 	private int currentPosition = 0;
-	
+
 	private ArrayList<FolderModel> listOfFolders = new ArrayList<FolderModel>();
 	private String path = "";
 	private TextView pathTextView;
 	private int pos = 0;
 	private RecyclerView recyclerView;
-	private String root_sd = Environment.getExternalStorageDirectory().toString();
-	private String secStore = "";
 	private boolean showButton = false;
 	private View v;
 	private String PATH = "path";
@@ -70,7 +63,7 @@ public class Folders extends Fragment implements OnItemTouchListener, OnClickLis
 
 	@Override
 	public void onCreate(Bundle bundle) {
-		Utilities.writeLogcatToFile(TAG, TAG);
+		Utilities.writeLogcatToFile(TAG);
 		Log.i(Constants.Folders, "IN Folders - onCreate() CALLED");
 		super.onCreate(bundle);
 		setRetainInstance(true);
@@ -90,13 +83,14 @@ public class Folders extends Fragment implements OnItemTouchListener, OnClickLis
 		try {
 			broadcastIntent = new Intent(Constants.BROADCAST_UNIVERSAL);
 			if(bundle == null) {
-				setUp();
+				new DirLoadTask().execute();
+				//StorageUtil.getExtStorageDirectories(getActivity());
 			} else {
 				restoreState(bundle);
 			}
 		} catch(Exception e) {
 			Log.e(TAG, e.toString());
-			Utilities.toastLong(getContext(), "Folders <<<>>>  "+e.toString());
+			Utilities.toastLong(getContext(), "Folders <<<>>>  " + e.toString());
 		}
 	}
 
@@ -108,56 +102,72 @@ public class Folders extends Fragment implements OnItemTouchListener, OnClickLis
 			pathTextView.setTextColor(Color.BLUE);
 			btnBack = (ImageButton) v.findViewById(R.id.btnBack);
 			btnBack.setOnClickListener(this);
+			showButton = false;
+			btnBack.setVisibility(View.GONE);
+
+			String str = "storage/";
+			String simpleName = Folders.class.getSimpleName();
+			SharedPreferences prefs = getActivity().getSharedPreferences(simpleName, Context.MODE_PRIVATE);
+			path = prefs.getString("folder_path", str);
+			//Bitmap decodeResource = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.fb_sdcard);
+			pathTextView.setText(path);
 		} catch(Exception e) {
 			Log.e(TAG, e.toString());
 			Utilities.toastLong(getActivity(), e.toString());
 		}
 	}
 
-	private void setUp() {
-		if(Utilities.isSdCardPresent()) {
-			try {
-				if(TextUtils.isEmpty(root_sd)) {
-					root_sd = System.getenv("EXTERNAL_STORAGE");
-				} else {
-					Log.e(TAG, root_sd);
-				}
-				listMusicFolders(root_sd);
+	/*
+	 private void setUp() {
+	 if(Utilities.isSdCardPresent()) {
+	 try {
+	 /*	if(TextUtils.isEmpty(root_sd)) {
+	 root_sd = System.getenv("EXTERNAL_STORAGE");
+	 } else {
+	 Log.e(TAG, root_sd);
+	 }
+	 listMusicFolders(root_sd);
+	 *
+	 try {
+	 /*secStore = FolderUtil.getMemoryCardPath();
+	 if(TextUtils.isEmpty(secStore)) {
+	 Log.i(TAG, "extSdCard not present");
+	 } else {
+	 Log.e(TAG, secStore);
+	 if(new File(secStore).length() > ((long) 0)) {
+	 Log.i(TAG, "Files available");
+	 listMusicFolders(secStore);
+	 } else {
+	 Log.e(TAG, "No files available");
+	 }
 
-				try {
-					secStore = FolderUtil.getMemoryCardPath();
-					if(TextUtils.isEmpty(secStore)) {
-						Log.i(TAG, "extSdCard not present");
-					} else {
-						Log.e(TAG, secStore);
-						if(new File(secStore).length() > ((long) 0)) {
-							Log.i(TAG, "Files available");
-							listMusicFolders(secStore);
-						} else {
-							Log.e(TAG, "No files available");
-						}
-						
-					}
-				} catch(Exception e) {
-					Utilities.toastLong(getContext(), "Error Accessing Tracks on ExtSdCard:  ");
-					Log.e(TAG, "Error Accessing Tracks on ExtSdCard:  " +e.toString());
-				}
-				filterMusicFolders();
-				init();
-			} catch(Exception e2) {
-				Utilities.toastLong(getContext(), "Folders <<<>>> error @ " + e2.toString());
-				Log.e(TAG, TAG + " <<<>>> error @ " + e2.toString());
-			}
-		}
-	}
+	 }
+
+	 } catch(Exception e) {
+	 Utilities.toastLong(getContext(), "Error Accessing Tracks on ExtSdCard:  "+e.toString());
+	 Log.e(TAG, "Error Accessing Tracks on ExtSdCard:  " +e.toString());
+	 }
+	 *
+	 for(String dir: StorageUtil.getExtStorageDirectories(getActivity())){
+	 listMusicFolders(dir);
+	 }
+	 filterMusicFolders();
+	 init();
+	 } catch(Exception e2) {
+	 Utilities.toastLong(getContext(), "Folders <<<>>> error @ " + e2.toString());
+	 Log.e(TAG, TAG + " <<<>>> error @ " + e2.toString());
+	 }
+	 }
+	 }
+	 */
 
 	private void listMusicFolders(String path) {
-		Log.e("MAIN", "PARENT STORAGE  ==>  " + path);
+		Log.e(TAG, "PARENT STORAGE  ==>  " + path);
 		File file = new File(path);
 		if(file.exists()) {
 			File[] listFiles = file.listFiles(new AudioFilter());
 			for(File file2 : listFiles) {
-				if(Utilities.getAudioFileCount(getContext(),file2.getAbsolutePath()) != 0) {
+				if(Utilities.getAudioFileCount(getContext(), file2.getAbsolutePath()) != 0) {
 					getFilesRecursive(file2);
 				}
 			}
@@ -187,33 +197,6 @@ public class Folders extends Fragment implements OnItemTouchListener, OnClickLis
 		}
 	}
 
-
-
-	private void init() {
-		try {
-			String str = "storage/";
-			String simpleName = Folders.class.getSimpleName();
-			SharedPreferences prefs = getActivity().getSharedPreferences(simpleName, Context.MODE_PRIVATE);
-			path = prefs.getString("folder_path", str);
-			Bitmap decodeResource = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.fb_sdcard);
-			pathTextView.setText(path);
-			listOfFolders.clear();
-			for(File file : UNIQUE_MUSIC_FILES) {
-				FolderModel folderModel = new FolderModel();
-				folderModel.setFolderName(file.getName());
-				folderModel.setFolderPath(file.getAbsolutePath());
-				folderModel.setFolderImg(decodeResource);
-				listOfFolders.add(folderModel);
-				Constants.FOLDER_TRACKS.add(folderModel);
-			}
-			initRecyclerView(listOfFolders);
-			showButton = false;
-			btnBack.setVisibility(View.GONE);
-		} catch(Exception e) {
-			Log.e("In init()  ", "In init()  " + e.toString());
-		}
-	}
-
 	private void initRecyclerView(ArrayList<FolderModel> listOfFolders) {
 		if(listOfFolders != null) {
 			adapter = new FolderAdapter(getActivity(), listOfFolders);
@@ -221,24 +204,82 @@ public class Folders extends Fragment implements OnItemTouchListener, OnClickLis
 			recyclerView.setItemAnimator(new DefaultItemAnimator());
 			recyclerView.setHasFixedSize(true);
 			recyclerView.setAdapter(adapter);
-			//registerForContextMenu(recyclerView);
 		}
-		//Utilities.toastShort(getContext(), "In OCV albums = null");
+	}
+
+
+	private void init() {
+		try {
+			listOfFolders.clear();
+			for(File file : UNIQUE_MUSIC_FILES) {
+				FolderModel folderModel = new FolderModel();
+				folderModel.setFolderName(file.getName());
+				folderModel.setFolderPath(file.getAbsolutePath());
+				//folderModel.setFolderImg(decodeResource);
+				listOfFolders.add(folderModel);
+				Constants.FOLDER_TRACKS.add(folderModel);
+			}
+			initRecyclerView(listOfFolders);
+
+		} catch(Exception e) {
+			Log.e("In init()  ", "In init()  " + e.toString());
+		}
+	}
+
+	private class DirLoadTask extends AsyncTask<Void,Void,Void>
+	{
+		ProgressDialog progressDialog;
+
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			progressDialog = new ProgressDialog(getActivity());
+			progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER); //Set style
+			progressDialog.setTitle("Searching Music Folders");
+			progressDialog.setMessage("Please wait ......"); //Message
+			progressDialog.setIndeterminate(true);
+			progressDialog.setCancelable(true);
+			//progressDialog.show();
+		}
+
+		@Override
+		protected Void doInBackground(Void[] p1) {
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(Void result) {
+			super.onPostExecute(result);
+			listOfFolders = Constants.F_MUSIC_FOLDERS;
+			initRecyclerView(listOfFolders);
+			if(progressDialog.isShowing()) {
+				progressDialog.dismiss();
+			}
+		}
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle bundle) {
+		Log.i(Constants.Folders, "IN Folders - onSaveInstanceState() CALLED");
+		bundle.putParcelableArrayList("folders", listOfFolders);
+		bundle.putString(PATH, path);
+		bundle.putBoolean("isShowing", showButton);
+		super.onSaveInstanceState(bundle);
 	}
 
 	private void restoreState(Bundle bundle) {
 		try {
 			listOfFolders = bundle.getParcelableArrayList("folders");
-			path = bundle.getString(DbConstants.COLUMN_PATH);
+			path = bundle.getString(PATH);
 			showButton = bundle.getBoolean("isShowing");
 			btnBack.setVisibility(!showButton ? View.GONE : View.VISIBLE);
 			initRecyclerView(listOfFolders);
 			pathTextView.setText(path);
 		} catch(Exception e) {
-			Log.e(TAG, TAG+" >>>  error restoring state:  " +e.toString());
+			Log.e(TAG, TAG + " >>>  error restoring state:  " + e.toString());
 		}
 	}
-	
+
 	GestureDetector gestureDetector = new GestureDetector(getActivity(), new SimpleOnGestureListener() {
 			@Override
 			public boolean onSingleTapUp(MotionEvent motionEvent) {
@@ -258,12 +299,13 @@ public class Folders extends Fragment implements OnItemTouchListener, OnClickLis
 				String name = null;
 				// checking if tempFile is a directory
 				if(musicFile.isDirectory()) { 
+					Utilities.toastShort(getActivity(), musicFile.getAbsolutePath().toString());
 					//Bitmap bmp = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.music_m_logo);
 					list = musicFile.listFiles(new NoMediaFilter());
 					listOfFolders.clear();
 					Constants.FOLDER_TRACKS.clear();
 					for(int i=0; i < list.length; i++) {
-						int count = Utilities.getAudioFileCount(getContext(),list[i].getAbsolutePath());
+						int count = Utilities.getAudioFileCount(getContext(), list[i].getAbsolutePath());
 						if(count != 0) {
 							name = list[i].getName();
 							String newName = name.substring(0, name.lastIndexOf('.'));
@@ -271,7 +313,7 @@ public class Folders extends Fragment implements OnItemTouchListener, OnClickLis
 							model = new FolderModel();
 							model.setFolderName(newName);
 							model.setFolderPath(namePath);
-							model.setAlbumArt(Utilities.getArtFromMusicFile(getActivity(),namePath));
+							model.setAlbumArt(Utilities.getArtFromMusicFile(getActivity(), namePath));
 							//model.setFolderImg(Utilities.getEmbeddedSongArt(getContext(), namePath));
 							//model.setFolderImg(bmp);
 							//new FoldersBitmapFactory(getContext(), list[i].getAbsolutePath(), model).execute();
@@ -317,7 +359,7 @@ public class Folders extends Fragment implements OnItemTouchListener, OnClickLis
 		}
 		return false;
 	}
-	
+
 	@Override
 	public void onRequestDisallowInterceptTouchEvent(boolean z) {
 	}
@@ -340,7 +382,7 @@ public class Folders extends Fragment implements OnItemTouchListener, OnClickLis
 						FolderModel folderModel = new FolderModel();
 						folderModel.setFolderName(file.getName());
 						folderModel.setFolderPath(file.getAbsolutePath());
-						folderModel.setFolderImg(decodeResource);
+						//folderModel.setFolderImg(decodeResource);
 						listOfFolders.add(folderModel);
 						Constants.FOLDER_TRACKS.add(folderModel);
 					}
@@ -381,7 +423,7 @@ public class Folders extends Fragment implements OnItemTouchListener, OnClickLis
 
 		super.onDestroy();
 	}
-	
+
 
 	@Override
 	public void onResume() {
@@ -395,14 +437,7 @@ public class Folders extends Fragment implements OnItemTouchListener, OnClickLis
 		super.onStop();
 	}
 
-	@Override
-	public void onSaveInstanceState(Bundle bundle) {
-		Log.i(Constants.Folders, "IN Folders - onSaveInstanceState() CALLED");
-		bundle.putParcelableArrayList("folders", listOfFolders);
-		bundle.putString(PATH, path);
-		bundle.putBoolean("isShowing", showButton);
-		super.onSaveInstanceState(bundle);
-	}
+
 
 
 	@Override
@@ -450,7 +485,7 @@ public class Folders extends Fragment implements OnItemTouchListener, OnClickLis
 			return true;
 		}
 	}
-	
-	
-	
+
+
+
 }

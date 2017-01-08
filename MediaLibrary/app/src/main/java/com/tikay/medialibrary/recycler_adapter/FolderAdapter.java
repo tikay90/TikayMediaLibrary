@@ -16,8 +16,11 @@ import com.bumptech.glide.request.target.SimpleTarget;
 import com.tikay.medialibrary.R;
 import com.tikay.medialibrary.models.ArtistModel;
 import com.tikay.medialibrary.models.FolderModel;
+import com.tikay.medialibrary.utils.AnimUtils;
 import java.util.ArrayList;
 import java.util.Locale;
+import android.view.View.OnClickListener;
+import com.tikay.medialibrary.utils.Utilities;
 
 public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.MyViewHolder>
 {
@@ -26,7 +29,8 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.MyViewHold
   private ArrayList<FolderModel> arraylist;
   private Context context;
 	private String TAG ="FolderAdapter";
-	
+	private int previousPosition = 0;
+
 	public FolderAdapter(Context cntxt, ArrayList<FolderModel> songList) {
 		context = cntxt;
 		this.list = songList;
@@ -35,20 +39,26 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.MyViewHold
 		this.arraylist = new ArrayList<FolderModel>();
 		this.arraylist.addAll(songList);
   }
-	
-	public class MyViewHolder extends RecyclerView.ViewHolder
+
+	public class MyViewHolder extends RecyclerView.ViewHolder implements OnClickListener
 	{
 		public ImageView ivThumbnail;
 		public TextView folderName, artistName,albumName,songDuration,folderPath;
 
 		public MyViewHolder(View view) {
 			super(view);
+			view.setOnClickListener(this);
 			folderName = (TextView)view.findViewById(R.id.tvFolder_Song_title);
 			folderPath = (TextView)view.findViewById(R.id.tvFolderPath);
 			ivThumbnail = (ImageView)view.findViewById(R.id.iv_folder_img);
 		}
+		
+		@Override
+		public void onClick(View v) {
+			// TODO: Implement this method
+		}
 	}
-	
+
 	@Override
 	public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 		View itemView = LayoutInflater.from(parent.getContext())
@@ -62,7 +72,7 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.MyViewHold
 		FolderModel item = folderList.get(position);
 		//holder.ivArtistThumbnail.setImageResource(R.drawable.apaawa_2);
 		holder.folderName.setText(item.getFolderName());
-		holder.folderPath.setText(item.getFolderPath() == null ? "No path" : item.getFolderPath());
+		holder.folderPath.setText(item.getFolderShortPath() == null ? "No path" : item.getFolderShortPath());
 		Glide
 			.with(context)
 			.load(item.getAlbumArt())
@@ -79,12 +89,18 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.MyViewHold
 					//holder.rl.setBackgroundResource(R.drawable.album_default);
 				}
 			});
-		//holder.ivThumbnail.setImageBitmap(item.getFolderImg());
+
+		if(position > previousPosition) { //scrolling downwards
+			AnimUtils.animateRecyclerView(holder, true);
+		} else { //scrolling upwards
+			AnimUtils.animateRecyclerView(holder, false);
+		}
+		previousPosition = position;
 		/*Glide
-			.with(context)
-			.load(item.getFolderImg())
-			.diskCacheStrategy(DiskCacheStrategy.ALL)
-			.into(holder.ivThumbnail);*/
+		 .with(context)
+		 .load(item.getFolderImg())
+		 .diskCacheStrategy(DiskCacheStrategy.ALL)
+		 .into(holder.ivThumbnail);*/
 	}
 
 	@Override
@@ -125,4 +141,18 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.MyViewHold
 		this.notifyDataSetChanged();
   }
 	
+	public void swap(ArrayList<FolderModel> newList){
+		if (folderList != null) {
+			folderList.clear();
+			folderList.addAll(newList);
+		}
+		else {
+			folderList = newList;
+		}
+		notifyDataSetChanged();
+		Utilities.toastShort(context,"recyclerview swapped");
+	}
+	
+	
+
 }

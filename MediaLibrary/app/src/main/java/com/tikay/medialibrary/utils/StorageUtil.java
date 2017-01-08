@@ -3,6 +3,7 @@ package com.tikay.medialibrary.utils;
 import android.content.Context;
 import android.os.Build;
 import android.os.Environment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.os.EnvironmentCompat;
 import android.text.TextUtils;
 import android.util.Log;
@@ -33,6 +34,7 @@ public class StorageUtil
 	 * @return paths to all available SD-Cards in the system (include emulated)
 	 */
 	public static String[] getStorageDirectories(Context context) {
+		Log.e("StorageUtil", "-------- start: getStorageDirectories()--------");
 		// Final set of paths
 		final Set<String> rv = new HashSet<>();
 		// Primary physical SD-CARD (not emulated)
@@ -41,6 +43,7 @@ public class StorageUtil
 		final String rawSecondaryStoragesStr = System.getenv("SECONDARY_STORAGE");
 		// Primary emulated SD-CARD
 		final String rawEmulatedStorageTarget = System.getenv("EMULATED_STORAGE_TARGET");
+
 		if(TextUtils.isEmpty(rawEmulatedStorageTarget)) {
 			Log.e("StorageUtil", "System.getenv(\"EXTERNAL_STORAGE\") is null");
 			//fix of empty raw emulated storage on marshmallow
@@ -100,7 +103,14 @@ public class StorageUtil
 		} else {
 			Log.e("StorageUtil", "System.getenv(\"SECONDARY_STORAGE\") is null");
 		}
-		return rv.toArray(new String[rv.size()]);
+
+		String[] paths =  rv.toArray(new String[rv.size()]);
+		for(String path: paths) {
+			Log.e(LOG_TAG, LOG_TAG + " <<<>>>  EXT_PATH: " + path);
+		}
+
+		Log.e("StorageUtil", "--------- end: getStorageDirectories()----------");
+		return paths;
 	}
 
 	/**
@@ -138,59 +148,66 @@ public class StorageUtil
 
 	/* returns external storage paths (directory of external memory card) as array of Strings */
 	public static String[] getExternalStorageDirectories(Context context) {
-
+		Log.e("StorageUtil", "---------- start: getExternalStorageDirectories() -----------");
 		List<String> results = new ArrayList<>();
 
     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) { //Method 1 for KitKat & above
 			File[] externalDirs = context.getExternalFilesDirs(null);
-			try{
-			for(File file : externalDirs) {
-				//String path = file.getAbsolutePath().split("/Android")[0];
-				String applicationSpecificAbsolutePath = file.getAbsolutePath();
-				String emulatedRootPath = applicationSpecificAbsolutePath.substring(0, applicationSpecificAbsolutePath.indexOf("Android/data"));
-				Log.e(LOG_TAG, emulatedRootPath);
+			try {
 
-				boolean addPath = false;
+				for(File file : externalDirs) {
+					//String path = file.getAbsolutePath().split("/Android")[0];
+					String applicationSpecificAbsolutePath = file.getAbsolutePath();
+					String emulatedRootPath = applicationSpecificAbsolutePath.substring(0, applicationSpecificAbsolutePath.indexOf("Android/data/"));
+					Log.e(LOG_TAG, "emulatedRootPath1: " + emulatedRootPath);
 
-				if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-					addPath = Environment.isExternalStorageRemovable(file);
-				} else {
-					addPath = Environment.MEDIA_MOUNTED.equals(EnvironmentCompat.getStorageState(file));
+					boolean addPath = false;
+
+					if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+						addPath = Environment.isExternalStorageRemovable(file);
+					} else {
+						addPath = Environment.MEDIA_MOUNTED.equals(EnvironmentCompat.getStorageState(file));
+					}
+
+					if(addPath) {
+						results.add(emulatedRootPath);
+						Log.e(LOG_TAG, "SECOND  ---" + emulatedRootPath);
+					}
 				}
-
-				if(addPath) {
-					results.add(emulatedRootPath);
-					Log.e(LOG_TAG, "SECOND  ---" + emulatedRootPath);
-				}
-			}
-			}catch(Exception e){
-				Utilities.toastLong(context,e.toString());
+			} catch(Exception e) {
+				Utilities.toastLong(context, e.toString());
 				Log.e(LOG_TAG, "Exception  ---  " + e.toString());
 			}
     }
 
-		if(results.isEmpty()) { //Method 2 for all versions
-			// better variation of: http://stackoverflow.com/a/40123073/5002496
-			String output = "";
-			try {
-				final Process process = new ProcessBuilder().command("mount | grep /dev/block/vold")
-					.redirectErrorStream(true).start();
-				process.waitFor();
-				final InputStream is = process.getInputStream();
-				final byte[] buffer = new byte[1024];
-				while(is.read(buffer) != -1) {
-					output = output + new String(buffer);
+		try {
+			if(results.isEmpty()) { //Method 2 for all versions
+				// better variation of: http://stackoverflow.com/a/40123073/5002496
+				Log.e(LOG_TAG, "In StorageUtil ---  results is empty ");
+				String output = "";
+				try {
+					//final Process process = new ProcessBuilder().command("mount|grep /dev/block/vold")
+					final Process process = new ProcessBuilder().command("mount")
+						.redirectErrorStream(true).start();
+					process.waitFor();
+					final InputStream is = process.getInputStream();
+					final byte[] buffer = new byte[1024];
+					while(is.read(buffer) != -1) {
+						output = output + new String(buffer);
+					}
+					is.close();
+				} catch(final Exception e) {
+					e.printStackTrace();
 				}
-				is.close();
-			} catch(final Exception e) {
-				e.printStackTrace();
-			}
-			if(!output.trim().isEmpty()) {
-				String devicePoints[] = output.split("\n");
-				for(String voldPoint: devicePoints) {
-					results.add(voldPoint.split(" ")[2]);
+				if(!output.trim().isEmpty()) {
+					String devicePoints[] = output.split("\n");
+					for(String voldPoint: devicePoints) {
+						results.add(voldPoint.split(" ")[2]);
+					}
 				}
 			}
+		} catch(Exception e) {
+
 		}
 
 		//Below few lines is to remove paths which may not be external memory card, like OTG (feel free to comment them out)
@@ -211,10 +228,161 @@ public class StorageUtil
 		}
 
 		String[] storageDirectories = new String[results.size()];
-		for(int i=0; i < results.size(); ++i) storageDirectories[i] = results.get(i);
+		for(int i=0; i < results.size(); ++i) {
+			storageDirectories[i] = results.get(i);
+		}
 
+		for(String path: storageDirectories) {
+			Log.e(LOG_TAG, "In StorageUtil ---  STORAGE_PATH: " + path);
+		}
+
+		Log.e("StorageUtil", "------ end: getExternalStorageDirectories()---------");
 		return storageDirectories;
 	}
+
+
+
+
+
+
+
+	/**
+	 * Returns all available SD-Cards in the system (include emulated)
+	 *
+	 * Warning: Hack! Based on Android source code of version 4.3 (API 18)
+	 * Because there is no standard way to get it.
+	 *
+	 * @return paths to all available SD-Cards in the system (include emulated)
+	 */
+	public static String[] getExtStorageDirectories(Context context) {
+		Log.e("StorageUtil", "-------- start: getExtStorageDirectories()--------");
+    // Final set of paths
+    final HashSet<String> rv = new HashSet<>();
+
+    //Get primary & secondary external device storage (internal storage & micro SDCARD slot...)
+		if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) { //Method 1 for KitKat & above
+			File[]  listExternalDirs = ContextCompat.getExternalFilesDirs(context, null);
+			for(int i=0;i < listExternalDirs.length;i++) {
+				if(listExternalDirs[i] != null) {
+					String path = listExternalDirs[i].getAbsolutePath();
+					int indexMountRoot = path.indexOf("/Android/data/");
+					if(indexMountRoot >= 0 && indexMountRoot <= path.length()) {
+						//Get the root path for the external directory
+						rv.add(path.substring(0, indexMountRoot));
+					}
+				}
+			}
+		} else { // methods for below kitkat
+			String root_sd = Environment.getExternalStorageDirectory().toString();
+			rv.add(root_sd);
+
+			// getting external sd path
+			String reg = "(?i).*vold.*(vfat|ntfs|exfat|fat32|ext3|ext4).*rw.*";
+			String s = "";
+			try {
+				final Process process = new ProcessBuilder().command("mount")
+					.redirectErrorStream(true).start();
+				process.waitFor();
+				final InputStream is = process.getInputStream();
+				final byte[] buffer = new byte[1024];
+				while(is.read(buffer) != -1) {
+					s = s + new String(buffer);
+				}
+				is.close();
+			} catch(final Exception e) {
+				e.printStackTrace();
+				Log.e(LOG_TAG, "In getStorageDirectories - first try block: " + e.toString());
+			}
+
+			// parse output
+			final String[] lines = s.split("\n");
+			for(String line : lines) {
+				if(!line.toLowerCase().contains("asec")) {
+					if(line.matches(reg)) {
+						String[] parts = line.split(" ");
+						for(String part : parts) {
+							if(part.startsWith("/"))
+								if(!part.toLowerCase().contains("vold"))
+									rv.add(part);
+						}
+					}
+				}
+			}
+		}
+
+		String[] storageDirectories = rv.toArray(new String[rv.size()]);
+
+		for(String path: storageDirectories) {
+			Log.e(LOG_TAG, "In StorageUtil ---  STORAGE_PATH >>>>: " + path);
+		}
+		Log.e("StorageUtil", "------- end: getExtStorageDirectories()--------");
+		return storageDirectories;
+
+	}
+
+
+
+	/**
+	 * Returns all the possible SDCard directories
+	 */
+	public static HashSet<String> getStorageDirectories() {
+		Log.e("StorageUtil", "------- begin: getStorageDirectories()--------");
+		String[] storageDirectories = null;
+		final HashSet<String> out = new HashSet<String>();
+		try {
+			// getting internal sd path
+			String root_sd = Environment.getExternalStorageDirectory().toString();
+			out.add(root_sd);
+
+			// getting external sd path
+			String reg = "(?i).*vold.*(vfat|ntfs|exfat|fat32|ext3|ext4).*rw.*";
+			String s = "";
+			try {
+				final Process process = new ProcessBuilder().command("mount")
+					.redirectErrorStream(true).start();
+				process.waitFor();
+				final InputStream is = process.getInputStream();
+				final byte[] buffer = new byte[1024];
+				while(is.read(buffer) != -1) {
+					s = s + new String(buffer);
+				}
+				is.close();
+			} catch(final Exception e) {
+				e.printStackTrace();
+				Log.e(LOG_TAG, "In getStorageDirectories - first try block: " + e.toString());
+			}
+
+			// parse output
+			final String[] lines = s.split("\n");
+			for(String line : lines) {
+				if(!line.toLowerCase().contains("asec")) {
+					if(line.matches(reg)) {
+						String[] parts = line.split(" ");
+						for(String part : parts) {
+							if(part.startsWith("/"))
+								if(!part.toLowerCase().contains("vold"))
+									out.add(part);
+						}
+					}
+				}
+			}
+
+			storageDirectories = out.toArray(new String[out.size()]);
+
+			for(String path: storageDirectories) {
+				Log.e(LOG_TAG, "In StorageUtil ---  NEW_STORAGE_PATH >>>>: " + path);
+			}
+		} catch(Exception e) {
+			Log.e(LOG_TAG, "In getStorageDirectories: " + e.toString());
+		}
+		Log.e("StorageUtil", "------- end: getStorageDirectories()--------");
+		return out;
+
+	}
+
+
+
+
 
 
 
